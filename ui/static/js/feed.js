@@ -4,35 +4,59 @@ async function loadFeed() {
   try {
     const resp = await fetch(feedURL, { credentials: 'include' });
     if (!resp.ok) throw new Error('Failed to load feed');
+
     const data = await resp.json();
-    renderFeed(data.posts || [], data.reactions || []);
+
+    renderFeed(data.categories || []);
   } catch (err) {
     console.error('Error loading feed:', err);
   }
 }
 
-function renderFeed(posts, reactions) {
+
+
+function renderFeed(categories) {
   const container = document.getElementById('forumContainer');
   container.innerHTML = '';
-  if (posts.length === 0) {
-    container.textContent = 'No posts available';
+
+  if (categories.length === 0) {
+    container.textContent = 'No categories or posts available';
     return;
   }
-  const tpl = document.getElementById('post-template');
-  posts.forEach(post => {
-    const node = tpl.content.cloneNode(true);
-    node.querySelector('.post-header').textContent = post.user_id;
-    node.querySelector('.post-title').textContent = post.title;
-    node.querySelector('.post-content').textContent = post.content;
-    if (post.created_at) {
-      node.querySelector('.post-time').textContent = new Date(post.created_at).toLocaleString();
-    }
-    const likes = reactions.filter(r => r.post_id === post.id && r.reaction_type === 1).length;
-    const dislikes = reactions.filter(r => r.post_id === post.id && r.reaction_type === 2).length;
-    node.querySelector('.like-count').textContent = likes;
-    node.querySelector('.dislike-count').textContent = dislikes;
-    container.appendChild(node);
+
+  const categoryTpl = document.getElementById('category-template');
+  const postTpl = document.getElementById('post-template');
+
+  categories.forEach(category => {
+    if (!category.posts || category.posts.length === 0) return;
+
+    const categoryNode = categoryTpl.content.cloneNode(true);
+    categoryNode.querySelector('.category-title').textContent = category.name;
+
+    const postsContainer = categoryNode.querySelector('.category-posts');
+
+    category.posts.forEach(post => {
+      const postNode = postTpl.content.cloneNode(true);
+      postNode.querySelector('.post-header').textContent = post.username || post.user_id;
+      postNode.querySelector('.post-title').textContent = post.title;
+      postNode.querySelector('.post-content').textContent = post.content;
+
+      if (post.created_at) {
+        postNode.querySelector('.post-time').textContent = new Date(post.created_at).toLocaleString();
+      }
+
+      const likes = post.reactions?.filter(r => r.reaction_type === 1).length || 0;
+      const dislikes = post.reactions?.filter(r => r.reaction_type === 2).length || 0;
+
+      postNode.querySelector('.like-count').textContent = likes;
+      postNode.querySelector('.dislike-count').textContent = dislikes;
+
+      postsContainer.appendChild(postNode);
+    });
+
+    container.appendChild(categoryNode);
   });
 }
+
 
 window.addEventListener('DOMContentLoaded', loadFeed);
