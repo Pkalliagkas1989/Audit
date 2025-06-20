@@ -25,6 +25,8 @@ func router(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/index":
 		http.ServeFile(w, r, "./static/templates/index.html")
+	case "/":
+		http.ServeFile(w, r, "./static/templates/index.html")
 	case "/login":
 		http.ServeFile(w, r, "./static/templates/login.html")
 	case "/register":
@@ -33,6 +35,8 @@ func router(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/templates/guest.html")
 	case "/guest/feed":
 		http.ServeFile(w, r, "./static/templates/feed.html")
+	case "/guest/categories":
+		http.ServeFile(w, r, "./static/templates/categories.html")
 	case "/user":
 		http.ServeFile(w, r, "./static/templates/user.html")
 	case "/error":
