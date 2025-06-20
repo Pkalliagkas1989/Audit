@@ -1,58 +1,112 @@
+const categoriesURL = 'http://localhost:8080/forum/api/categories';
+const dropdownToggle = document.querySelector('.category-dropdown-toggle');
+const dropdownContent = document.getElementById('category-tabs');
 const forumContainer = document.getElementById('forumContainer');
-const postTpl = document.getElementById('post-template');
+const postTemplate = document.getElementById('post-template');
 
-function getQueryParam(param) {
-  const url = new URL(window.location.href);
-  return url.searchParams.get(param);
+// Toggle dropdown visibility
+if (dropdownToggle) {
+  dropdownToggle.addEventListener('click', () => {
+    dropdownContent.classList.toggle('open');
+    const arrow = dropdownToggle.querySelector('.dropdown-arrow');
+    if (arrow) {
+      arrow.style.transform = dropdownContent.classList.contains('open') ? 'rotate(180deg)' : '';
+    }
+  });
 }
 
-async function loadCategory() {
-  const categoryId = getQueryParam('id');
-  if (!categoryId) {
-    forumContainer.textContent = 'No category ID provided.';
+// Load and render category list in sidebar
+async function loadCategories() {
+  try {
+    const resp = await fetch(categoriesURL, { credentials: 'include' });
+    if (!resp.ok) throw new Error('failed to load categories');
+    const categories = await resp.json();
+    renderCategories(categories);
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    renderCategories([]);
+  }
+}
+
+function renderCategories(categories) {
+  dropdownContent.innerHTML = '';
+
+  if (!categories || categories.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'No categories available';
+    li.className = 'no-categories';
+    dropdownContent.appendChild(li);
     return;
   }
 
+  categories.forEach(cat => {
+    const li = document.createElement('li');
+    const link = document.createElement('a');
+    link.textContent = cat.name;
+    link.href = `/guest/categories?id=${encodeURIComponent(cat.id)}`;
+    link.className = 'category-item';
+    li.appendChild(link);
+    dropdownContent.appendChild(li);
+  });
+}
+
+// Get current category ID from query string
+const urlParams = new URLSearchParams(window.location.search);
+const categoryId = urlParams.get('id');
+
+// Load and render the category's posts
+async function loadCategoryPosts(id) {
   try {
-    const resp = await fetch(`http://localhost:8080/forum/api/public/feed`, { credentials: 'include' });
-    if (!resp.ok) throw new Error('Failed to load data');
-    const data = await resp.json();
-
-    const category = data.categories.find(c => c.id.toString() === categoryId);
-    if (!category) {
-      forumContainer.textContent = 'Category not found.';
-      return;
-    }
-
-    const posts = category.posts;
-    forumContainer.innerHTML = `<h2>${category.name}</h2>`;
-
-    if (posts.length === 0) {
-      forumContainer.innerHTML += '<p>No posts in this category.</p>';
-      return;
-    }
-
-    posts.forEach(post => {
-      const postNode = postTpl.content.cloneNode(true);
-      postNode.querySelector('.post-header').textContent = post.username || post.user_id;
-      postNode.querySelector('.post-title').textContent = post.title;
-      postNode.querySelector('.post-content').textContent = post.content;
-      if (post.created_at) {
-        postNode.querySelector('.post-time').textContent = new Date(post.created_at).toLocaleString();
-      }
-
-      const likes = post.reactions?.filter(r => r.reaction_type === 1).length || 0;
-      const dislikes = post.reactions?.filter(r => r.reaction_type === 2).length || 0;
-      postNode.querySelector('.like-count').textContent = likes;
-      postNode.querySelector('.dislike-count').textContent = dislikes;
-
-      forumContainer.appendChild(postNode);
+    const resp = await fetch(`http://localhost:8080/forum/api/categories/${id}`, {
+      credentials: 'include'
     });
 
+    if (!resp.ok) throw new Error('Failed to load category data');
+
+    const category = await resp.json();
+    renderCategoryPosts(category);
   } catch (err) {
-    console.error('Error:', err);
-    forumContainer.textContent = 'An error occurred loading this category.';
+    console.error(err);
+    forumContainer.textContent = 'Error loading category posts.';
   }
 }
 
-window.addEventListener('DOMContentLoaded', loadCategory);
+function renderCategoryPosts(category) {
+  forumContainer.innerHTML = '';
+
+  const title = document.createElement('h2');
+  title.textContent = category.name || `Category ${category.id}`;
+  forumContainer.appendChild(title);
+
+  if (!category.posts || category.posts.length === 0) {
+    const noPosts = document.createElement('p');
+    noPosts.textContent = 'No posts in this category yet.';
+    forumContainer.appendChild(noPosts);
+    return;
+  }
+
+  category.posts.forEach(post => {
+    const postNode = postTemplate.content.cloneNode(true);
+
+    postNode.querySelector('.post-header').textContent = post.username || 'Anonymous';
+    postNode.querySelector('.post-title').textContent = post.title;
+    postNode.querySelector('.post-content').textContent = post.content;
+    postNode.querySelector('.post-time').textContent = new Date(post.created_at).toLocaleString();
+
+    postNode.querySelector('.like-count').textContent = post.likes || 0;
+    postNode.querySelector('.dislike-count').textContent = post.dislikes || 0;
+
+    forumContainer.appendChild(postNode);
+  });
+}
+
+// Initialize both dropdown and category content
+window.addEventListener('DOMContentLoaded', () => {
+  loadCategories();
+
+  if (categoryId) {
+    loadCategoryPosts(categoryId);
+  } else {
+    forumContainer.textContent = 'No category ID provided in the URL.';
+  }
+});
