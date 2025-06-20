@@ -36,6 +36,7 @@ async function loadCategories() {
 // Render category items
 function renderCategories(categories) {
   dropdownContent.innerHTML = '';
+
   if (!categories || categories.length === 0) {
     const li = document.createElement('li');
     li.textContent = 'No categories available';
@@ -46,14 +47,17 @@ function renderCategories(categories) {
 
   categories.forEach(cat => {
     const li = document.createElement('li');
+
     const link = document.createElement('a');
     link.textContent = cat.name;
-    link.href = '#';
+    link.href = `/guest/categories?id=${encodeURIComponent(cat.id)}`; // ✅ dynamic link
     link.className = 'category-item';
+
     li.appendChild(link);
     dropdownContent.appendChild(li);
   });
 }
+
 
 // Initialize on DOM ready
 window.addEventListener('DOMContentLoaded', loadCategories);
