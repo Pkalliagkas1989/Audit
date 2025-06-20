@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error</title>
+    <link rel="stylesheet" href="/static/css/error.css" />
+  </head>
+  <body>
+    <div class="form">
+      <h1 id="heading">Oops! Something went wrong</h1>
+      <p id="error-message">An unexpected error occurred.</p>
+      <button class="button1" onclick="goBack()">Go Back</button>
+    </div>
+
+    <script>
+      function goBack() {
+        window.location.href = "/index";
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const msg = params.get("msg");
+      if (msg) {
+        document.getElementById("error-message").textContent =
+          decodeURIComponent(msg);
+      }
+    </script>
+  </body>
+</html>

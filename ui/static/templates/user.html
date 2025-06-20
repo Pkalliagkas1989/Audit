@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forum Feed</title>
+    <link rel="stylesheet" href="/static/css/user.css" />
+    <link rel="stylesheet" href="/static/css/modal.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a class="navbar-brand">Nexxus Forum</a>
+      <ul class="navbar-links">
+        <li><a href="#" id="logout-link">Logout</a></li>
+      </ul>
+    </nav>
+
+    <nav class="side-menu" id="side-menu">
+      <ul>
+        <li><a href="#" id="my-feed-link">My Feed</a></li>
+        <li><a href="#" id="create-post-btn">Create Post</a></li>
+        <li class="category-toggle">Categories</li>
+        <li>
+          <ul id="category-tabs" class="category-tabs"></ul>
+        </li>
+        <li><a href="#" id="created-posts-link">Created Posts</a></li>
+        <li><a href="#" id="liked-posts-link">Liked Posts</a></li>
+      </ul>
+      <div class="side-glow"></div>
+    </nav>
+
+    <div class="forum-content" id="forumContainer"></div>
+
+    <template id="category-template">
+      <div class="category-section">
+        <div class="category-title"></div>
+        <div class="category-posts"></div>
+      </div>
+    </template>
+
+    <template id="post-template">
+      <div class="post">
+        <h3 class="post-header"></h3>
+        <div class="post-title"></div>
+        <p class="post-content"></p>
+        <time class="post-time"></time>
+        <div class="post-reactions">
+          <button class="like-btn">▲  <span class="like-count">0</span></button>
+          <button class="dislike-btn">▼  <span class="dislike-count">0</span></button>
+          <button class="comment-btn">Add Comment</button>
+        </div>
+        <div class="post-comments"></div>
+      </div>
+    </template>
+
+    <template id="comment-template">
+      <div class="comment">
+        <strong class="comment-user"></strong>
+        <span class="comment-content"></span>
+        <time class="comment-time"></time>
+        <div class="comment-reactions">
+          <button class="like-btn">▲ <span class="like-count">0</span></button>
+          <button class="dislike-btn">▼ <span class="dislike-count">0</span></button>
+        </div>
+      </div>
+    </template>
+
+    <div id="post-modal" class="modal hidden">
+      <div class="modal-content">
+        <button class="close-btn">&times;</button>
+        <h2>Create Post</h2>
+
+        <input id="post-title" placeholder="Post Title" />
+        <textarea id="post-body" placeholder="Write your post..."></textarea>
+
+        <label for="post-category" class="modal-label">Categories</label>
+        <div id="post-category" class="checkbox-group"></div>
+
+        <button id="submit-post">Submit</button>
+      </div>
+    </div>
+    <script src="/static/js/user-main.js" type="module"></script>
+  </body>
+</html>
