@@ -80,11 +80,11 @@ func (h *GuestHandler) GuestView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// comments, err := h.commentRepo.GetAllComments()
-	// if err != nil {
-	// 	utils.ErrorResponse(w, "Failed to fetch comments.", http.StatusInternalServerError)
-	// 	return
-	// }
+	comments, err := h.commentRepo.GetAllComments()
+	if err != nil {
+		utils.ErrorResponse(w, "Failed to fetch comments.", http.StatusInternalServerError)
+		return
+	}
 
 	reactions, err := h.reactionRepo.GetAllReactions()
 	if err != nil {
@@ -94,7 +94,7 @@ func (h *GuestHandler) GuestView(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]interface{}{
 		"posts":     posts,
-		//"comments":  comments,
+		"comments":  comments,
 		"reactions": reactions,
 	}
 

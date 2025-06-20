@@ -40,7 +40,7 @@ func SetupRoutes(db *sql.DB) http.Handler {
 
 	// Public routes
 	mux.Handle("/forum/api/categories", corsMiddleware.Handler(http.HandlerFunc(categoryHandler.GetCategories)))
-	mux.Handle("/forum/api/public/feed", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GuestView)))
+	mux.Handle("/forum/api/public/feed", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GetGuestData)))
 	//mux.Handle("/forum/api/allData", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GetGuestData)))
 	mux.Handle("/forum/api/register", corsMiddleware.Handler(http.HandlerFunc(registerLimiter.Limit(authHandler.Register))))
 	mux.Handle("/forum/api/session/login", corsMiddleware.Handler(http.HandlerFunc(authHandler.Login)))
