@@ -57,7 +57,7 @@ const categoryId = urlParams.get('id');
 // Load and render the category's posts
 async function loadCategoryPosts(id) {
   try {
-    const resp = await fetch(`http://localhost:8080/forum/api/categories/${id}`, {
+    const resp = await fetch(`http://localhost:8080/forum/api/category?id=${id}`, {
       credentials: 'include'
     });
 
