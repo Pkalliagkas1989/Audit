@@ -33,7 +33,7 @@ function renderFeed(categories) {
     const categoryNode = categoryTpl.content.cloneNode(true);
     const titleEl = categoryNode.querySelector('.category-title');
     const link = document.createElement('a');
-    link.href = `/guest/categories?id=${category.id}`;
+    link.href = `/guest/category?id=${category.id}`;
     link.textContent = category.name;
     link.classList.add('category-link'); // Optional: add a CSS class
     titleEl.appendChild(link);
