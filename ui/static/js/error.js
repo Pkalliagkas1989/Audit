@@ -15,4 +15,8 @@ window.addEventListener('DOMContentLoaded', () => {
   if (errorMessage) {
     errorMessage.textContent = msg ? decodeURIComponent(msg) : "An unexpected error occurred.";
   }
+  document.getElementById("back-button")?.addEventListener("click", () => {
+  window.history.back();
+});
+
 });
