@@ -21,7 +21,7 @@ func SetupRoutes(db *sql.DB) http.Handler {
 
 	// Create handlers
 	authHandler := handlers.NewAuthHandler(userRepo, sessionRepo)
-	categoryHandler := handlers.NewCategoryHandler(categoryRepo)
+	categoryHandler := handlers.NewCategoryHandler(categoryRepo, postRepo)
 	postHandler := handlers.NewPostHandler(postRepo)
 	myPostsHandler := handlers.NewMyPostsHandler(postRepo, commentRepo, reactionRepo)
 	likedPostsHandler := handlers.NewLikedPostsHandler(postRepo, commentRepo, reactionRepo)
