@@ -55,6 +55,20 @@ func (r *CategoryRepository) GetAll() ([]models.Category, error) {
 // 	return posts, nil
 // }
 
+func (r *CategoryRepository) GetByID(id int) (*models.Category, error) {
+	query := "SELECT category_id, name FROM categories WHERE category_id = ?"
+	row := r.db.QueryRow(query, id)
+	var category models.Category
+	if err := row.Scan(&category.ID, &category.Name); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Category not found
+		}
+		return nil, err
+	}
+	return &category, nil
+	}
+	
+
 // // repository/comment_repository.go
 func (r *CommentRepository) GetCommentsByPostWithUser(postID string) ([]models.CommentWithUser, error) {
 	query := `SELECT c.comment_id, c.post_id, c.user_id, u.username, c.content, c.created_at
