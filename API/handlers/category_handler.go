@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"forum/models"
 	"forum/repository"
 	"forum/utils"
 )
@@ -11,11 +12,15 @@ import (
 // CategoryHandler handles category related requests
 type CategoryHandler struct {
 	CategoryRepo *repository.CategoryRepository
+	PostRepo     *repository.PostRepository
 }
 
 // NewCategoryHandler creates a new CategoryHandler
-func NewCategoryHandler(repo *repository.CategoryRepository) *CategoryHandler {
-	return &CategoryHandler{CategoryRepo: repo}
+func NewCategoryHandler(catRepo *repository.CategoryRepository, postRepo *repository.PostRepository) *CategoryHandler {
+	return &CategoryHandler{
+		CategoryRepo: catRepo,
+		PostRepo:     postRepo,
+	}
 }
 
 // GetCategories returns all categories as JSON
@@ -52,7 +57,7 @@ func (h *CategoryHandler) GetCategoryByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	category, err := h.CategoryRepo.GetByID(id)
+	category, err := h.CategoryRepo.GetCategoryByID(id)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to load category", http.StatusInternalServerError)
 		return
@@ -63,6 +68,17 @@ func (h *CategoryHandler) GetCategoryByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	utils.JSONResponse(w, category, http.StatusOK)
-}
+	posts, err := h.PostRepo.GetPostsByCategoryWithUser(id)
+	if err != nil {
+		utils.ErrorResponse(w, "Failed to fetch posts", http.StatusInternalServerError)
+		return
+	}
 
+	categoryByID := models.CategoryWithPosts{
+		ID:    category.ID,
+		Name:  category.Name,
+		Posts: posts,
+	}
+
+	utils.JSONResponse(w, categoryByID, http.StatusOK)
+}
