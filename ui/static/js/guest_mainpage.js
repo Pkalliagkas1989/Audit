@@ -50,7 +50,7 @@ function renderCategories(categories) {
 
     const link = document.createElement('a');
     link.textContent = cat.name;
-    link.href = `/guest/categories?id=${encodeURIComponent(cat.id)}`; // ✅ dynamic link
+    link.href = `/guest/category?id=${encodeURIComponent(cat.id)}`; // ✅ dynamic link
     link.className = 'category-item';
 
     li.appendChild(link);

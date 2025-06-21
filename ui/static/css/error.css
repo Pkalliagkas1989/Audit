@@ -52,7 +52,12 @@
     color: var(--color-accent);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
-  
+  .error-text {
+  color: red;
+  font-weight: bold;
+  margin-top: 1em;
+}
+
   #error-message {
     font-size: 1.2em;
     color: var(--text-muted);

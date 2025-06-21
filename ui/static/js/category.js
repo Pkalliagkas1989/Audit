@@ -43,7 +43,7 @@ function renderCategories(categories) {
     const li = document.createElement('li');
     const link = document.createElement('a');
     link.textContent = cat.name;
-    link.href = `/guest/categories?id=${encodeURIComponent(cat.id)}`;
+    link.href = `/guest/category?id=${encodeURIComponent(cat.id)}`;
     link.className = 'category-item';
     li.appendChild(link);
     dropdownContent.appendChild(li);
@@ -61,13 +61,18 @@ async function loadCategoryPosts(id) {
       credentials: 'include'
     });
 
-    if (!resp.ok) throw new Error('Failed to load category data');
+     if (!resp.ok) {
+    const errorData = await resp.json(); // backend sends JSON error
+    const message = encodeURIComponent(errorData.error || "Unknown error");
+    window.location.href = `/guest/error?msg=${message}`;
+    return;
+  }
 
     const category = await resp.json();
     renderCategoryPosts(category);
   } catch (err) {
-    console.error(err);
-    forumContainer.textContent = 'Error loading category posts.';
+    const fallback = encodeURIComponent("Network error or backend unreachable");
+    window.location.href = `/guest/error?msg=${fallback}`;
   }
 }
 
