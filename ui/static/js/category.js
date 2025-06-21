@@ -61,12 +61,14 @@ async function loadCategoryPosts(id) {
       credentials: 'include'
     });
 
-     if (!resp.ok) {
-    const errorData = await resp.json(); // backend sends JSON error
-    const message = encodeURIComponent(errorData.error || "Unknown error");
-    window.location.href = `/guest/error?msg=${message}`;
-    return;
-  }
+    if (!resp.ok) {
+  const errorData = await resp.json();
+  const code = errorData.code || resp.status;
+  const message = encodeURIComponent(errorData.message || errorData.error || "Unknown error");
+  window.location.href = `/guest/error?code=${code}&msg=${message}`;
+  return;
+}
+
 
     const category = await resp.json();
     renderCategoryPosts(category);
