@@ -19,49 +19,100 @@ function renderFeed(categories) {
   const container = document.getElementById('forumContainer');
   container.innerHTML = '';
 
-  if (categories.length === 0) {
-    container.textContent = 'No categories or posts available';
+  // Merge posts from categories to avoid duplicates & collect categories per post
+  const posts = mergePostsFromCategories(categories);
+
+  if (posts.length === 0) {
+    container.textContent = 'No posts available';
     return;
   }
 
-  const categoryTpl = document.getElementById('category-template');
   const postTpl = document.getElementById('post-template');
 
-  categories.forEach(category => {
-    if (!category.posts || category.posts.length === 0) return;
+  posts.forEach(post => {
+    const postNode = postTpl.content.cloneNode(true);
 
-    const categoryNode = categoryTpl.content.cloneNode(true);
-    const titleEl = categoryNode.querySelector('.category-title');
-    const link = document.createElement('a');
-    link.href = `/guest/category?id=${category.id}`;
-    link.textContent = category.name;
-    link.classList.add('category-link'); // Optional: add a CSS class
-    titleEl.appendChild(link);
+    // Post user info
+    postNode.querySelector('.post-header').textContent = post.username || post.user_id || 'Unknown user';
 
-    const postsContainer = categoryNode.querySelector('.category-posts');
+    // Post title and content
+    postNode.querySelector('.post-title').textContent = post.title || '';
+    postNode.querySelector('.post-content').textContent = post.content || '';
 
-    category.posts.forEach(post => {
-      const postNode = postTpl.content.cloneNode(true);
-      postNode.querySelector('.post-header').textContent = post.username || post.user_id;
-      postNode.querySelector('.post-title').textContent = post.title;
-      postNode.querySelector('.post-content').textContent = post.content;
+    // Post created time
+    if (post.created_at) {
+      postNode.querySelector('.post-time').textContent = new Date(post.created_at).toLocaleString();
+    }
 
-      if (post.created_at) {
-        postNode.querySelector('.post-time').textContent = new Date(post.created_at).toLocaleString();
+    // Reactions count
+    const likes = post.reactions?.filter(r => r.reaction_type === 1).length || 0;
+    const dislikes = post.reactions?.filter(r => r.reaction_type === 2).length || 0;
+
+    postNode.querySelector('.like-count').textContent = likes;
+    postNode.querySelector('.dislike-count').textContent = dislikes;
+
+    // Categories list: "<User> posted on the <category1>, <category2>, ..."
+    // We'll append this after the header or below title
+    const catContainer = document.createElement('div');
+    catContainer.className = 'post-categories';
+
+    const postedOnSpan = document.createElement('span');
+    postedOnSpan.classList.add('posted-on-text');
+    postedOnSpan.textContent = 'posted on the ';
+    catContainer.appendChild(postedOnSpan);
+
+
+    post.categories.forEach((cat, idx) => {
+      const catLink = document.createElement('a');
+      catLink.href = `/guest/category?id=${encodeURIComponent(cat.id)}`;
+      catLink.textContent = cat.name;
+      catLink.classList.add('post-category-link');
+      catContainer.appendChild(catLink);
+
+      if (idx < post.categories.length - 1) {
+        catContainer.appendChild(document.createTextNode(', '));
       }
-
-      const likes = post.reactions?.filter(r => r.reaction_type === 1).length || 0;
-      const dislikes = post.reactions?.filter(r => r.reaction_type === 2).length || 0;
-
-      postNode.querySelector('.like-count').textContent = likes;
-      postNode.querySelector('.dislike-count').textContent = dislikes;
-
-      postsContainer.appendChild(postNode);
     });
 
-    container.appendChild(categoryNode);
+    // Append categories info below post title or header
+    // Append categories info BEFORE post title
+    const postTitleEl = postNode.querySelector('.post-title');
+    postTitleEl.parentNode.insertBefore(catContainer, postTitleEl);
+
+
+    container.appendChild(postNode);
   });
 }
 
 
+
 window.addEventListener('DOMContentLoaded', loadFeed);
+
+
+function mergePostsFromCategories(categories) {
+  const postsMap = new Map();
+
+  categories.forEach(category => {
+    const categoryId = category.id || category.ID;
+    const categoryName = category.name || category.Name;
+
+    category.posts.forEach(post => {
+      const postId = post.id || post.ID;
+      if (!postsMap.has(postId)) {
+        // Copy post and initialize categories array
+        postsMap.set(postId, {
+          ...post,
+          categories: [{ id: categoryId, name: categoryName }],
+        });
+      } else {
+        // Append category if not already added
+        const existingPost = postsMap.get(postId);
+        if (!existingPost.categories.some(c => c.id === categoryId)) {
+          existingPost.categories.push({ id: categoryId, name: categoryName });
+        }
+      }
+    });
+  });
+
+  return Array.from(postsMap.values());
+}
