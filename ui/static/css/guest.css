@@ -427,3 +427,28 @@
 .category-link:hover {
   text-decoration: underline;
 }
+
+
+.post-categories {
+  margin-top: 4px;
+  font-style: italic;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.post-category-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.post-category-link:hover {
+  text-decoration: underline;
+}
+
+.posted-on-text {
+  color: var(--color-primary);
+  margin: 0 0 0.5em 0;
+  font-size: 1.2em;
+  display: inline-block; /* so margin works properly */
+}
+
