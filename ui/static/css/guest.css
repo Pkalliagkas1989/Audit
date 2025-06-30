@@ -452,3 +452,7 @@
   display: inline-block; /* so margin works properly */
 }
 
+.clickable-post:hover {
+  background-color: #f8f8f8;
+  transition: background-color 0.2s ease-in-out;
+}

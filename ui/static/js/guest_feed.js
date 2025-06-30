@@ -31,6 +31,17 @@ function renderFeed(categories) {
 
   posts.forEach(post => {
     const postNode = postTpl.content.cloneNode(true);
+    const postElement = postNode.querySelector('.post');
+
+    // Make the entire post clickable
+    postElement.classList.add('clickable-post');
+    postElement.style.cursor = 'pointer';
+    postElement.addEventListener('click', () => {
+      if (post.id) {
+        window.location.href = `/post?id=${encodeURIComponent(post.id)}`;
+      }
+    });
+
 
     // Post user info
     postNode.querySelector('.post-header').textContent = post.username || post.user_id || 'Unknown user';
