@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register</title>
+    <!-- Link guest.css first to get variables and base styles -->
+    <link rel="stylesheet" href="/static/css/guest.css" />
     <link rel="stylesheet" href="/static/css/register.css" />
     <script src="/static/js/register.js" defer></script>
   </head>
@@ -71,14 +73,19 @@
 
           <div class="btn">
             <button class="button1" type="submit">
-              &nbsp;&nbsp;&nbsp;&nbsp;Register&nbsp;&nbsp;&nbsp;&nbsp;
+              Register
             </button>
-            <!-- <a href="login.html">
-              <button type="button" class="button2">Login</button>
-            </a>
-          </div> -->
+            <button class="oauth-button" type="button" id="googleRegisterBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,2.691,0.528,5.207,1.458,7.5l-6.571,4.819C2.757,34.042,2,31.133,2,28C2,22.092,4.42,16.893,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.571,4.819C5.825,37.899,9.475,42,14,42C18.525,42,22.175,37.899,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.002,0.003-0.003l-6.19,5.238C36.923,38.257,40,34.089,40,29C40,26.97,39.676,25.032,39.045,23.186L43.611,20.083z"/></svg>
+                Register with Google
+            </button>
+            <button class="oauth-button" type="button" id="githubRegisterBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20px" height="20px" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.334-1.756-1.334-1.756-1.09-.745.08-.73.08-.73 1.205.085 1.838 1.238 1.838 1.238 1.07 1.835 2.809 1.305 3.49.998.108-.775.418-1.305.762-1.605-2.665-.3-5.464-1.333-5.464-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.13-3.18 0 0 1-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.3-1.552 3.3-1.23 3.3-1.23.67 1.657.265 2.877.13 3.18.77.84 1.235 1.91 1.235 3.22 0 4.61-2.8 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.89-.015 3.28 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12z"/></svg>
+                Register with GitHub
+            </button>
+          </div>
 
-          <button class="button3" type="button" onclick="window.location.href='/'">Want to login?</button>
+          <button class="button3" type="button" onclick="window.location.href='/login'">Want to login?</button>
           <p id="message" style="margin-top: 10px; text-align: center"></p>
         </form>
       </div>
