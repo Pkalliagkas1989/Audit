@@ -43,6 +43,9 @@ func router(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/templates/error.html")
 	case "/post":
 		http.ServeFile(w, r, "./static/templates/post.html")
+	// case "/guest/post":
+    // http.ServeFile(w, r, "./static/templates/post.html")
+
 	case "/config":
 		w.Header().Set("Content-Type", "application/json")
 		config := map[string]string{
