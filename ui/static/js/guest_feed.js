@@ -38,7 +38,7 @@ function renderFeed(categories) {
     postElement.style.cursor = 'pointer';
     postElement.addEventListener('click', () => {
       if (post.id) {
-        window.location.href = `/post?id=${encodeURIComponent(post.id)}`;
+        window.location.href = `/guest/post?id=${encodeURIComponent(post.id)}`;
       }
     });
 
