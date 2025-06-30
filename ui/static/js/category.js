@@ -34,7 +34,7 @@ function renderCategories(categories) {
   if (!categories || categories.length === 0) {
     const li = document.createElement('li');
     li.textContent = 'No categories available';
-    li.className = 'no-categories';
+    li.className = 'no-categories'; // Use CSS class for styling
     dropdownContent.appendChild(li);
     return;
   }
@@ -44,7 +44,7 @@ function renderCategories(categories) {
     const link = document.createElement('a');
     link.textContent = cat.name;
     link.href = `/guest/category?id=${encodeURIComponent(cat.id)}`;
-    link.className = 'category-item';
+    link.className = 'category-item'; // Use CSS class for styling
     li.appendChild(link);
     dropdownContent.appendChild(li);
   });
@@ -62,13 +62,12 @@ async function loadCategoryPosts(id) {
     });
 
     if (!resp.ok) {
-  const errorData = await resp.json();
-  const code = errorData.code || resp.status;
-  const message = encodeURIComponent(errorData.message || errorData.error || "Unknown error");
-  window.location.href = `/guest/error?code=${code}&msg=${message}`;
-  return;
-}
-
+      const errorData = await resp.json();
+      const code = errorData.code || resp.status;
+      const message = encodeURIComponent(errorData.message || errorData.error || "Unknown error");
+      window.location.href = `/guest/error?code=${code}&msg=${message}`;
+      return;
+    }
 
     const category = await resp.json();
     renderCategoryPosts(category);
@@ -83,11 +82,13 @@ function renderCategoryPosts(category) {
 
   const title = document.createElement('h2');
   title.textContent = category.name || `Category ${category.id}`;
+  // No need for a class here, as forum-content h2 targets it directly.
   forumContainer.appendChild(title);
 
   if (!category.posts || category.posts.length === 0) {
     const noPosts = document.createElement('p');
     noPosts.textContent = 'No posts in this category yet.';
+    noPosts.className = 'no-posts'; // Add class for styling
     forumContainer.appendChild(noPosts);
     return;
   }
@@ -95,6 +96,8 @@ function renderCategoryPosts(category) {
   category.posts.forEach(post => {
     const postNode = postTemplate.content.cloneNode(true);
 
+    // Set text content for template elements
+    // The classes here (post-header, post-title, etc.) are crucial for CSS to apply
     postNode.querySelector('.post-header').textContent = post.username || 'Anonymous';
     postNode.querySelector('.post-title').textContent = post.title;
     postNode.querySelector('.post-content').textContent = post.content;
@@ -103,17 +106,15 @@ function renderCategoryPosts(category) {
     postNode.querySelector('.like-count').textContent = post.likes || 0;
     postNode.querySelector('.dislike-count').textContent = post.dislikes || 0;
 
-    // 🔗 Wrap post in clickable anchor
+    // Wrap post in clickable anchor, applying the 'post-link' class
     const postWrapper = document.createElement('a');
-    postWrapper.href = `/post?id=${encodeURIComponent(post.id)}`;
-    postWrapper.className = 'post-link';
+    postWrapper.href = `/guest/post?id=${encodeURIComponent(post.id)}`;
+    postWrapper.className = 'post-link'; // This class is key for the card styling and hover
     postWrapper.appendChild(postNode);
 
     forumContainer.appendChild(postWrapper);
   });
 }
-
-
 
 // Initialize both dropdown and category content
 window.addEventListener('DOMContentLoaded', () => {
@@ -122,6 +123,10 @@ window.addEventListener('DOMContentLoaded', () => {
   if (categoryId) {
     loadCategoryPosts(categoryId);
   } else {
-    forumContainer.textContent = 'No category ID provided in the URL.';
+    // If no category ID, display a message that also uses light text.
+    const noIdMessage = document.createElement('p');
+    noIdMessage.textContent = 'No category ID provided in the URL.';
+    noIdMessage.style.color = 'var(--text-muted)'; // Ensure this text is light
+    forumContainer.appendChild(noIdMessage);
   }
 });

@@ -32,17 +32,17 @@ func router(w http.ResponseWriter, r *http.Request) {
 	case "/register":
 		http.ServeFile(w, r, "./static/templates/register.html")
 	case "/guest":
-		http.ServeFile(w, r, "./static/templates/guest/mainpage.html")
+		http.ServeFile(w, r, "./static/templates/guest/guest_mainpage.html")
 	case "/guest/feed":
-		http.ServeFile(w, r, "./static/templates/feed.html")
+		http.ServeFile(w, r, "./static/templates/guest/guest_feed.html")
 	case "/guest/category":
-		http.ServeFile(w, r, "./static/templates/guest/category.html")
+		http.ServeFile(w, r, "./static/templates/guest/guest_category.html")
+	case "/guest/post":
+		http.ServeFile(w, r, "./static/templates/guest/guest_post.html")
 	case "/user":
 		http.ServeFile(w, r, "./static/templates/user.html")
 	case "/guest/error":
 		http.ServeFile(w, r, "./static/templates/error.html")
-	case "/post":
-		http.ServeFile(w, r, "./static/templates/post.html")
 	// case "/guest/post":
     // http.ServeFile(w, r, "./static/templates/post.html")
 

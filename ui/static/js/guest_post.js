@@ -76,35 +76,43 @@ function renderSinglePost(post) {
 
   const commentHeader = document.createElement('h3');
   commentHeader.textContent = 'Comments';
+  // Applying color from CSS variable directly via style property or by adding a class if defined
+  // For consistency, let's assume h3 in post.css (or guest.css) will define its color.
+  // If not, you'd add: commentHeader.style.color = 'var(--text-primary)';
   commentSection.appendChild(commentHeader);
 
   if (post.comments?.length > 0) {
     post.comments.forEach(comment => {
       const commentEl = document.createElement('div');
       commentEl.className = 'comment';
-      commentEl.style.borderTop = '1px solid #ccc';
-      commentEl.style.paddingTop = '0.5rem';
-      commentEl.style.marginTop = '0.5rem';
+      // Removed hardcoded border-top, padding-top, margin-top to let CSS handle it
+      // commentEl.style.borderTop = '1px solid #ccc';
+      // commentEl.style.paddingTop = '0.5rem';
+      // commentEl.style.marginTop = '0.5rem';
 
       const commentUser = document.createElement('strong');
       commentUser.textContent = comment.username || comment.user_id || 'Anonymous';
+      // Color handled by .comment strong in post.css (var(--color-primary)) - NO JS CHANGE NEEDED
 
       const commentTime = document.createElement('time');
       commentTime.textContent = ` (${new Date(comment.created_at).toLocaleString()})`;
-      commentTime.style.fontSize = '0.85em';
-      commentTime.style.color = '#666';
+      // Color handled by .comment time in post.css (var(--text-muted)) - NO JS CHANGE NEEDED
+      // commentTime.style.fontSize = '0.85em'; // Handled by CSS
+      // commentTime.style.color = '#666'; // Handled by CSS (var(--text-muted))
 
       const commentContent = document.createElement('div');
       commentContent.textContent = comment.content || '';
-      commentContent.style.margin = '0.25rem 0';
+      // Color handled by .comment p (if you add a p tag) or by .comment itself in post.css (var(--text-secondary))
+      // commentContent.style.margin = '0.25rem 0'; // Handled by CSS
 
       const commentReactions = document.createElement('div');
       commentReactions.className = 'comment-reactions';
-      commentReactions.style.marginTop = '0.25rem';
+      // commentReactions.style.marginTop = '0.25rem'; // Handled by CSS
 
       const likeCount = comment.reactions?.filter(r => r.reaction_type === 1).length || 0;
       const dislikeCount = comment.reactions?.filter(r => r.reaction_type === 2).length || 0;
 
+      // Buttons for comment reactions will be styled by .post-reactions button in post.css
       commentReactions.innerHTML = `
         <button disabled>▲ ${likeCount}</button>
         <button disabled>▼ ${dislikeCount}</button>
@@ -120,6 +128,8 @@ function renderSinglePost(post) {
   } else {
     const noComments = document.createElement('p');
     noComments.textContent = 'No comments yet.';
+    // Ensure this text is also light. Use a CSS class for consistency or inline style.
+    noComments.style.color = 'var(--text-muted)'; // Using var for consistency
     commentSection.appendChild(noComments);
   }
 
