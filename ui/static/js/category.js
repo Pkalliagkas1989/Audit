@@ -103,9 +103,17 @@ function renderCategoryPosts(category) {
     postNode.querySelector('.like-count').textContent = post.likes || 0;
     postNode.querySelector('.dislike-count').textContent = post.dislikes || 0;
 
-    forumContainer.appendChild(postNode);
+    // 🔗 Wrap post in clickable anchor
+    const postWrapper = document.createElement('a');
+    postWrapper.href = `/post?id=${encodeURIComponent(post.id)}`;
+    postWrapper.className = 'post-link';
+    postWrapper.appendChild(postNode);
+
+    forumContainer.appendChild(postWrapper);
   });
 }
+
+
 
 // Initialize both dropdown and category content
 window.addEventListener('DOMContentLoaded', () => {
