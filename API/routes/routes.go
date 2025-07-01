@@ -28,6 +28,7 @@ func SetupRoutes(db *sql.DB) http.Handler {
 	commentHandler := handlers.NewCommentHandler(commentRepo)
 	reactionHandler := handlers.NewReactionHandler(reactionRepo)
 	guestHandler := handlers.NewGuestHandler(categoryRepo, postRepo, commentRepo, reactionRepo)
+	googleOAuthHandler := handlers.NewGoogleOAuthHandler(userRepo, sessionRepo)
 
 	// Create middleware
 	registerLimiter := middleware.NewRateLimiter()
@@ -44,14 +45,8 @@ func SetupRoutes(db *sql.DB) http.Handler {
 	mux.Handle("/forum/api/public/feed", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GetGuestData)))
 	//mux.Handle("/forum/api/allData", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GetGuestData)))
 	mux.Handle("/forum/api/register", corsMiddleware.Handler(http.HandlerFunc(registerLimiter.Limit(authHandler.Register))))
-<<<<<<< HEAD
-	// mux.HandleFunc("/auth/google/login", handlers.GoogleLoginHandler)
-	// mux.HandleFunc("/auth/google/callback", handlers.GoogleCallbackHandler)
-	// mux.HandleFunc("/auth/github/login", handlers.GitHubLoginHandler)
-	// mux.HandleFunc("/oauth/github/callback", handlers.GitHubCallbackHandler)
-
-=======
->>>>>>> 289cb6929aae576611050ad1261732033fc1f610
+	mux.HandleFunc("/forum/api/auth/google", googleOAuthHandler.Login)
+	mux.HandleFunc("/forum/api/auth/google/callback", googleOAuthHandler.Callback)
 	mux.Handle("/forum/api/session/login", corsMiddleware.Handler(http.HandlerFunc(authHandler.Login)))
 	mux.Handle("/forum/api/session/logout", corsMiddleware.Handler(http.HandlerFunc(authHandler.Logout)))
 	mux.Handle("/forum/api/session/verify", corsMiddleware.Handler(http.HandlerFunc(authHandler.VerifySession)))
