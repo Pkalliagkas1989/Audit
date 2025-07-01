@@ -15,11 +15,7 @@ func GenerateUUID() string {
 
 // GenerateSessionToken creates a new session token/ID
 func GenerateSessionToken() string {
-<<<<<<< HEAD
 	return uuid.New().String()
-=======
-	return GenerateUUID()
->>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 }
 
 // CalculateSessionExpiry calculates the expiry time for a session
