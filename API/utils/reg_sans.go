@@ -12,7 +12,7 @@ import (
 //Prevent leading/trailing whitespace
 
 var UsernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]{3,50}$`)
-var emailRegex = regexp.MustCompile(`^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.com$`)
+var emailRegex = regexp.MustCompile(`^^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$`)
 
 //Min 8 characters
 //(Optional: enforce upper/lower/digit/symbol)
