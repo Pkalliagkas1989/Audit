@@ -87,4 +87,3 @@ command again with the same parameters will toggle the reaction off.
 docker compose up --build
 docker compose up
 `
-
