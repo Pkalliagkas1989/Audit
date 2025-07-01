@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -24,10 +25,16 @@ type GoogleOAuthHandler struct {
 
 // NewGoogleOAuthHandler creates a GoogleOAuthHandler with config from environment variables.
 func NewGoogleOAuthHandler(userRepo *repository.UserRepository, sessionRepo *repository.SessionRepository) *GoogleOAuthHandler {
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	redirectURL := os.Getenv("GOOGLE_CALLBACK_URL")
+	if redirectURL == "" {
+		log.Fatal("GOOGLE_CALLBACK_URL environment variable is not set")
+	}
 	cfg := &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("GOOGLE_CALLBACK_URL"),
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",

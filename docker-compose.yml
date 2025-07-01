@@ -5,6 +5,8 @@ services:
     build:
       context: ./API
       dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
       - "8080:8080"  # optional; for debugging
     networks:
@@ -19,7 +21,7 @@ services:
     depends_on:
       - api
     environment:
-      - API_URL=http://api:8081
+      - API_URL=http://api:8080
     networks:
       - backend
 
