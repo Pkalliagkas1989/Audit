@@ -27,7 +27,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
       message.classList.add("success");
       // Optionally redirect to login
       setTimeout(() => {
-    window.location.href = "/guest/feed";  // Redirect to feed page
+    window.location.href = "/user";  // Redirect to feed page
   }, 1000);
     } else {
       message.textContent = data.message || "Registration failed!";
