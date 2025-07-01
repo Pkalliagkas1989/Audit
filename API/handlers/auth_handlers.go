@@ -103,17 +103,20 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	// 🟢 Set session cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
+		Name:     "session_id",
 		Value:    session.SessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // Change to true in production (with HTTPS)
+		Secure:   false, // true in production
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	utils.JSONResponse(w, map[string]string{
-		"message": "Registration successful",
+	utils.JSONResponse(w, models.LoginResponse{
+		User:      *user,
+		SessionID: session.SessionID,
+		CSRFToken: csrfToken,
 	}, http.StatusCreated)
+
 }
 
 

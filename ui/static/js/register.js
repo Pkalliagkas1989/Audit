@@ -16,19 +16,27 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
   try {
     const response = await fetch("http://localhost:8080/forum/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // ✅ Include cookies!
       body: JSON.stringify({ username, email, password }),
     });
 
     const data = await response.json();
 
     if (response.ok) {
-      message.textContent = data.message;
+      // ✅ Save CSRF token if needed
+      if (data.csrf_token) {
+        localStorage.setItem("csrfToken", data.csrf_token);
+      }
+
+      message.textContent = "Registration successful!";
       message.classList.add("success");
-      // Optionally redirect to login
+
       setTimeout(() => {
-    window.location.href = "/user";  // Redirect to feed page
-  }, 1000);
+        window.location.replace("/user");
+      }, 1000);
     } else {
       message.textContent = data.message || "Registration failed!";
       message.classList.remove("success");

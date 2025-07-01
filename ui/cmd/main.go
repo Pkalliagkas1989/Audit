@@ -1,25 +1,34 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 )
 
-var (
-	APIBaseURL    = "http://localhost:8080/forum/api"
-	AuthURI       = APIBaseURL + "/session/verify"
-	DataURI       = APIBaseURL + "/allData"
-	LoginURI      = APIBaseURL + "/session/login"
-	LogoutURI     = APIBaseURL + "/session/logout"
-	RegisterURI   = APIBaseURL + "/register"
-	CategoriesURI = APIBaseURL + "/categories"
-	ReactionsURI  = APIBaseURL + "/react"
-	CommentsURI   = APIBaseURL + "/comments"
-	CreatePostURI = APIBaseURL + "/posts/create"
-	MyPostsURI    = APIBaseURL + "/user/posts"
-	LikedPostsURI = APIBaseURL + "/user/liked"
-)
+func checkSession(r *http.Request) bool {
+	// Get session_id cookie from the request
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		return false
+	}
+
+	// Create a request to backend to verify session
+	req, err := http.NewRequest("GET", "http://localhost:8080/forum/api/session/verify", nil)
+	if err != nil {
+		return false
+	}
+	req.AddCookie(cookie)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	return resp.StatusCode == http.StatusOK
+}
+
 
 func router(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
@@ -28,9 +37,18 @@ func router(w http.ResponseWriter, r *http.Request) {
 	case "/":
 		http.ServeFile(w, r, "./static/templates/index.html")
 	case "/login":
-		http.ServeFile(w, r, "./static/templates/login.html")
+	if checkSession(r) {
+		http.Redirect(w, r, "/user", http.StatusFound)
+		return
+	}
+	http.ServeFile(w, r, "./static/templates/login.html")
 	case "/register":
-		http.ServeFile(w, r, "./static/templates/register.html")
+	if checkSession(r) {
+		// If session exists, redirect to user feed
+		http.Redirect(w, r, "/user", http.StatusFound)
+		return
+	}
+	http.ServeFile(w, r, "./static/templates/register.html")
 	case "/guest":
 		http.ServeFile(w, r, "./static/templates/guest/guest_mainpage.html")
 	case "/guest/feed":
@@ -40,29 +58,14 @@ func router(w http.ResponseWriter, r *http.Request) {
 	case "/guest/post":
 		http.ServeFile(w, r, "./static/templates/guest/guest_post.html")
 	case "/user":
-		http.ServeFile(w, r, "./static/templates/user.html")
+	if !checkSession(r) {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+	http.ServeFile(w, r, "./static/templates/user.html")
 	case "/guest/error":
 		http.ServeFile(w, r, "./static/templates/error.html")
-	// case "/guest/post":
-    // http.ServeFile(w, r, "./static/templates/post.html")
 
-	case "/config":
-		w.Header().Set("Content-Type", "application/json")
-		config := map[string]string{
-			"APIBaseURL":    APIBaseURL,
-			"AuthURI":       AuthURI,
-			"DataURI":       DataURI,
-			"LoginURI":      LoginURI,
-			"LogoutURI":     LogoutURI,
-			"RegisterURI":   RegisterURI,
-			"CategoriesURI": CategoriesURI,
-			"ReactionsURI":  ReactionsURI,
-			"CommentsURI":   CommentsURI,
-			"CreatePostURI": CreatePostURI,
-			"MyPostsURI":    MyPostsURI,
-			"LikedPostsURI": LikedPostsURI,
-		}
-		json.NewEncoder(w).Encode(config)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		http.ServeFile(w, r, "./static/templates/error.html")
