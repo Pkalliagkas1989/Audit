@@ -25,12 +25,22 @@ func NewAuthHandler(userRepo *repository.UserRepository, sessionRepo *repository
 	}
 }
 
+<<<<<<< HEAD
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+=======
+// Register handles user registration
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	// Only allow POST requests
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 	if r.Method != http.MethodPost {
 		utils.ErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
+<<<<<<< HEAD
+=======
+	// Parse request body
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 	var reg models.UserRegistration
 	err := json.NewDecoder(r.Body).Decode(&reg)
 	if err != nil {
@@ -42,28 +52,58 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	reg.Email = strings.TrimSpace(strings.ToLower(reg.Email))
 	reg.Password = strings.TrimSpace(reg.Password)
 
+<<<<<<< HEAD
+=======
+	// Validate request
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 	if reg.Username == "" || reg.Email == "" || reg.Password == "" {
 		utils.ErrorResponse(w, "Username, email, and password are required", http.StatusBadRequest)
 		return
 	}
 
+<<<<<<< HEAD
+=======
+	// Username: 3–50 chars, letters/numbers/underscores only
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 	if !utils.UsernameRegex.MatchString(reg.Username) {
 		utils.ErrorResponse(w, "Username must be 3-50 characters, letters/numbers/underscores only", http.StatusBadRequest)
 		return
 	}
 
+<<<<<<< HEAD
 	cleanEmail, err := utils.ValidateEmail(reg.Email)
 	if err != nil {
+=======
+	// Email: trim, lowercase, parse, and enforce ending in .com
+	cleanEmail, err := utils.ValidateEmail(reg.Email)
+	if err != nil {
+		// You might want to send err.Error() directly, since ValidateEmail already produces a user-friendly message.
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 		utils.ErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	reg.Email = cleanEmail
 
+<<<<<<< HEAD
+=======
+	// Password: at least 8 chars, at least one letter and one digit
+	if !utils.IsStrongPassword(reg.Password) {
+		utils.ErrorResponse(w, "Password must be at least 8 characters, with at least one letter and one digit", http.StatusBadRequest)
+		return
+	}
+
+	// Optional: Strength (at least 1 digit, 1 letter)
+
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 	if !utils.IsStrongPassword(reg.Password) {
 		utils.ErrorResponse(w, "Password must contain letters and numbers", http.StatusBadRequest)
 		return
 	}
 
+<<<<<<< HEAD
+=======
+	// Create user
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 	user, err := h.UserRepo.Create(reg)
 	if err != nil {
 		switch err {
@@ -77,6 +117,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+<<<<<<< HEAD
 	// 🟢 Create a session right after registration
 	csrfToken := utils.GenerateCSRFToken()
 	session, err := h.SessionRepo.Create(user.ID, r.RemoteAddr, csrfToken)
@@ -101,6 +142,16 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 
+=======
+	response := map[string]interface{}{
+		"id":       user.ID,
+		"username": user.Username,
+		"email":    user.Email,
+	}
+	utils.JSONResponse(w, response, http.StatusCreated)
+}
+
+>>>>>>> 289cb6929aae576611050ad1261732033fc1f610
 // Login handles user login
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Only allow POST requests
