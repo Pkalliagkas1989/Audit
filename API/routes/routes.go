@@ -21,6 +21,7 @@ func SetupRoutes(db *sql.DB) http.Handler {
 
 	// Create handlers
 	authHandler := handlers.NewAuthHandler(userRepo, sessionRepo)
+	oauthHandler := handlers.NewOAuthHandler(userRepo, sessionRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryRepo, postRepo)
 	postHandler := handlers.NewPostHandler(postRepo)
 	myPostsHandler := handlers.NewMyPostsHandler(postRepo, commentRepo, reactionRepo)
@@ -44,10 +45,10 @@ func SetupRoutes(db *sql.DB) http.Handler {
 	mux.Handle("/forum/api/public/feed", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GetGuestData)))
 	//mux.Handle("/forum/api/allData", corsMiddleware.Handler(http.HandlerFunc(guestHandler.GetGuestData)))
 	mux.Handle("/forum/api/register", corsMiddleware.Handler(http.HandlerFunc(registerLimiter.Limit(authHandler.Register))))
-	// mux.HandleFunc("/auth/google/login", handlers.GoogleLoginHandler)
-	// mux.HandleFunc("/auth/google/callback", handlers.GoogleCallbackHandler)
-	// mux.HandleFunc("/auth/github/login", handlers.GitHubLoginHandler)
-	// mux.HandleFunc("/oauth/github/callback", handlers.GitHubCallbackHandler)
+	mux.HandleFunc("/auth/google/login", oauthHandler.GoogleLoginHandler)
+	mux.HandleFunc("/auth/google/callback", oauthHandler.GoogleCallbackHandler)
+	mux.HandleFunc("/auth/github/login", oauthHandler.GitHubLoginHandler)
+	mux.HandleFunc("/oauth/github/callback", oauthHandler.GitHubCallbackHandler)
 
 	mux.Handle("/forum/api/session/login", corsMiddleware.Handler(http.HandlerFunc(authHandler.Login)))
 	mux.Handle("/forum/api/session/logout", corsMiddleware.Handler(http.HandlerFunc(authHandler.Logout)))

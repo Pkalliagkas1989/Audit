@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"forum/models"
@@ -15,6 +16,7 @@ var (
 	ErrEmailTaken         = errors.New("email is already taken")
 	ErrUsernameTaken      = errors.New("username is already taken")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrPasswordNotSet     = errors.New("password not set; login with oauth")
 )
 
 // UserRepository handles user-related database operations
@@ -184,16 +186,116 @@ func (r *UserRepository) Authenticate(login models.UserLogin) (*models.User, err
 	// Get the user's authentication data
 	auth, err := r.GetAuthByUserID(user.ID)
 	if err != nil {
-		fmt.Println("Auth record not found")
+		if err == ErrUserNotFound {
+			return nil, ErrPasswordNotSet
+		}
 		return nil, err
 	}
-	fmt.Println("Stored hash:", auth.PasswordHash)
-	fmt.Println("Password match?", utils.CheckPasswordHash(login.Password, auth.PasswordHash))
 
-	// Check the password
+	if auth.PasswordHash == "" {
+		return nil, ErrPasswordNotSet
+	}
+
 	if !utils.CheckPasswordHash(login.Password, auth.PasswordHash) {
 		return nil, ErrInvalidCredentials
 	}
 
 	return user, nil
+}
+
+// FindOrCreateOAuthUser looks up a user by provider credentials or email and creates
+// a new account if none exists. Username uniqueness is ensured.
+func (r *UserRepository) FindOrCreateOAuthUser(email, name, provider, providerID string) (*models.User, error) {
+	// Try by provider
+	user, err := r.GetByProvider(provider, providerID)
+	if err == nil {
+		return user, nil
+	}
+
+	// Try by email
+	user, err = r.GetByEmail(email)
+	if err == nil {
+		// link provider
+		if err := r.LinkProvider(user.ID, provider, providerID); err != nil && err != sql.ErrNoRows {
+			return nil, err
+		}
+		return user, nil
+	}
+
+	if err != ErrUserNotFound {
+		return nil, err
+	}
+
+	// Ensure unique username derived from name or email
+	base := strings.TrimSpace(name)
+	if base == "" {
+		base = strings.Split(email, "@")[0]
+	}
+	username := base
+	i := 1
+	for {
+		var count int
+		if err := r.DB.QueryRow("SELECT COUNT(*) FROM user WHERE username = ?", username).Scan(&count); err != nil {
+			return nil, err
+		}
+		if count == 0 {
+			break
+		}
+		username = fmt.Sprintf("%s%d", base, i)
+		i++
+	}
+
+	tx, err := r.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	userID := utils.GenerateUUID()
+	createdAt := time.Now()
+	if _, err := tx.Exec(`INSERT INTO user (user_id, username, email, created_at) VALUES (?, ?, ?, ?)`, userID, username, email, createdAt); err != nil {
+		return nil, err
+	}
+	if _, err := tx.Exec(`INSERT INTO user_providers (user_id, provider, provider_id) VALUES (?, ?, ?)`, userID, provider, providerID); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return &models.User{ID: userID, Username: username, Email: email, CreatedAt: createdAt}, nil
+}
+
+// GetByProvider returns user by provider and id
+func (r *UserRepository) GetByProvider(provider, providerID string) (*models.User, error) {
+	query := `SELECT u.user_id, u.username, u.email, u.created_at FROM user u JOIN user_providers up ON u.user_id = up.user_id WHERE up.provider = ? AND up.provider_id = ?`
+	var u models.User
+	var created time.Time
+	err := r.DB.QueryRow(query, provider, providerID).Scan(&u.ID, &u.Username, &u.Email, &created)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	u.CreatedAt = created
+	return &u, nil
+}
+
+// LinkProvider associates an OAuth provider with an existing user
+func (r *UserRepository) LinkProvider(userID, provider, providerID string) error {
+	_, err := r.DB.Exec(`INSERT OR IGNORE INTO user_providers (user_id, provider, provider_id) VALUES (?, ?, ?)`, userID, provider, providerID)
+	return err
+}
+
+// HasPassword checks if the user has a password set
+func (r *UserRepository) HasPassword(userID string) (bool, error) {
+	var hash sql.NullString
+	err := r.DB.QueryRow(`SELECT password_hash FROM user_auth WHERE user_id = ?`, userID).Scan(&hash)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return hash.Valid && hash.String != "", nil
 }
