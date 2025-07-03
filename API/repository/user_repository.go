@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"forum/models"
@@ -196,4 +197,69 @@ func (r *UserRepository) Authenticate(login models.UserLogin) (*models.User, err
 	}
 
 	return user, nil
+}
+
+// FindOrCreateOAuthUser finds an existing user by provider or email, or creates one
+func (r *UserRepository) FindOrCreateOAuthUser(email, provider, providerID string) (*models.User, error) {
+	var userID string
+	err := r.DB.QueryRow("SELECT user_id FROM user_providers WHERE provider = ? AND provider_id = ?", provider, providerID).Scan(&userID)
+	if err == nil {
+		return r.GetByID(userID)
+	}
+	if err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	user, err := r.GetByEmail(email)
+	if err != nil && err != ErrUserNotFound {
+		return nil, err
+	}
+
+	tx, err := r.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	if user == nil {
+		userID = utils.GenerateUUID()
+		username := strings.Split(email, "@")[0] + "_" + utils.GenerateUUID()[:8]
+		createdAt := time.Now()
+		_, err = tx.Exec("INSERT INTO user (user_id, username, email, created_at) VALUES (?, ?, ?, ?)", userID, username, email, createdAt)
+		if err != nil {
+			return nil, err
+		}
+		user = &models.User{ID: userID, Username: username, Email: email, CreatedAt: createdAt}
+	} else {
+		userID = user.ID
+	}
+
+	_, err = tx.Exec("INSERT OR IGNORE INTO user_providers (user_id, provider, provider_id) VALUES (?, ?, ?)", userID, provider, providerID)
+	if err != nil {
+		return nil, err
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+// PasswordExists checks if the user has a password set
+func (r *UserRepository) PasswordExists(userID string) (bool, error) {
+	var count int
+	err := r.DB.QueryRow("SELECT COUNT(*) FROM user_auth WHERE user_id = ?", userID).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// SetPassword sets or updates the user's password
+func (r *UserRepository) SetPassword(userID, password string) error {
+	hash, err := utils.HashPassword(password)
+	if err != nil {
+		return err
+	}
+	_, err = r.DB.Exec("INSERT OR REPLACE INTO user_auth (user_id, password_hash) VALUES (?, ?)", userID, hash)
+	return err
 }

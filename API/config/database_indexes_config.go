@@ -10,3 +10,4 @@ const IdxCommentsUserID = `CREATE INDEX IF NOT EXISTS idx_comments_user_id ON co
 const IdxReactionsUserID = `CREATE INDEX IF NOT EXISTS idx_reactions_user_id ON reactions(user_id);`
 const IdxReactionsPostID = `CREATE INDEX IF NOT EXISTS idx_reactions_post_id ON reactions(post_id);`
 const IdxReactionsCommentID = `CREATE INDEX IF NOT EXISTS idx_reactions_comment_id ON reactions(comment_id);`
+const IdxUserProvidersUserID = `CREATE INDEX IF NOT EXISTS idx_user_providers_user_id ON user_providers(user_id);`

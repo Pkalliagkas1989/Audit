@@ -21,6 +21,7 @@ func SetupRoutes(db *sql.DB) http.Handler {
 
 	// Create handlers
 	authHandler := handlers.NewAuthHandler(userRepo, sessionRepo)
+	oauthHandler := handlers.NewOAuthHandler(userRepo, sessionRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryRepo)
 	postHandler := handlers.NewPostHandler(postRepo)
 	myPostsHandler := handlers.NewMyPostsHandler(postRepo, commentRepo, reactionRepo)
@@ -45,6 +46,10 @@ func SetupRoutes(db *sql.DB) http.Handler {
 	mux.Handle("/forum/api/session/login", corsMiddleware.Handler(http.HandlerFunc(authHandler.Login)))
 	mux.Handle("/forum/api/session/logout", corsMiddleware.Handler(http.HandlerFunc(authHandler.Logout)))
 	mux.Handle("/forum/api/session/verify", corsMiddleware.Handler(http.HandlerFunc(authHandler.VerifySession)))
+	mux.Handle("/forum/api/auth/google/login", corsMiddleware.Handler(http.HandlerFunc(oauthHandler.GoogleLogin)))
+	mux.Handle("/forum/api/auth/google/callback", corsMiddleware.Handler(http.HandlerFunc(oauthHandler.GoogleCallback)))
+	mux.Handle("/forum/api/auth/github/login", corsMiddleware.Handler(http.HandlerFunc(oauthHandler.GithubLogin)))
+	mux.Handle("/forum/api/auth/github/callback", corsMiddleware.Handler(http.HandlerFunc(oauthHandler.GithubCallback)))
 
 	// Protected routes with CSRF
 	protected := func(h http.Handler) http.Handler {

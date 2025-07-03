@@ -10,7 +10,6 @@ const CreatePostCategoriesTable = `CREATE TABLE IF NOT EXISTS post_categories (
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );`
 
-
 const CreateUserTable = `CREATE TABLE IF NOT EXISTS user (
             user_id TEXT PRIMARY KEY,
             username TEXT NOT NULL UNIQUE CHECK (LENGTH(username) <= 50),
@@ -34,12 +33,11 @@ const CreateSessionsTable = `CREATE TABLE IF NOT EXISTS sessions (
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );`
 
-
 const CreateCategoriesTable = `CREATE TABLE IF NOT EXISTS categories (
             category_id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE CHECK (LENGTH(name) <= 100)
         );`
-		
+
 const CreatePostsTable = `CREATE TABLE IF NOT EXISTS posts (
     post_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -49,7 +47,6 @@ const CreatePostsTable = `CREATE TABLE IF NOT EXISTS posts (
     updated_at TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );`
-
 
 const CreateCommentsTable = `CREATE TABLE IF NOT EXISTS comments (
             comment_id TEXT PRIMARY KEY,
@@ -77,3 +74,12 @@ const CreateReactionsTable = `CREATE TABLE IF NOT EXISTS reactions (
                 (post_id IS NOT NULL AND comment_id IS NULL)
             )
         );`
+
+const CreateUserProvidersTable = `CREATE TABLE IF NOT EXISTS user_providers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+    UNIQUE(provider, provider_id)
+);`

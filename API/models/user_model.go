@@ -33,12 +33,12 @@ type UserLogin struct {
 
 // Session represents a user session
 type Session struct {
-	UserID     string    `json:"user_id"`
-	SessionID  string    `json:"session_id"`
-	CSRFToken  string    `json:"csrf_token"` // CSRF token for security
-	IPAddress  string    `json:"ip_address"`
-	CreatedAt  time.Time `json:"created_at"`
-	ExpiresAt  time.Time `json:"expires_at"`
+	UserID    string    `json:"user_id"`
+	SessionID string    `json:"session_id"`
+	CSRFToken string    `json:"csrf_token"` // CSRF token for security
+	IPAddress string    `json:"ip_address"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 // LoginResponse is the response after successful login
@@ -48,9 +48,10 @@ type LoginResponse struct {
 	CSRFToken string `json:"csrf_token"`
 }
 
-
-
-
-
-
-
+// UserProvider links a user to an OAuth provider
+type UserProvider struct {
+	ID         int    `json:"id"`
+	UserID     string `json:"user_id"`
+	Provider   string `json:"provider"`
+	ProviderID string `json:"provider_id"`
+}
